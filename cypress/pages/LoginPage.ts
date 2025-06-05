@@ -7,6 +7,8 @@ export class LoginPage {
   private readonly passwordInputSelector = '#loginpassword';
   private readonly loginButtonSelector = 'button.btn.btn-primary';
   private readonly welcomeUserSelector = '#nameofuser';
+  private readonly closeButtonSelector = 'button';
+  private readonly loginModalSelector = '#logInModal';
 
   // ====================
   // Navigation
@@ -23,30 +25,43 @@ export class LoginPage {
   // Actions - Typing
   // ====================
   typeUsername(username: string): void {
+    const input = cy.get(this.usernameInputSelector).clear();
     if (username) {
-      cy.get(this.usernameInputSelector)
-        .clear()
-        .type(username); // Add { log: false } to hide in logs if needed
-    } else {
-      cy.get(this.usernameInputSelector).clear();
+      input.type(username);
     }
   }
 
   typePassword(password: string): void {
+    const input = cy.get(this.passwordInputSelector).clear();
     if (password) {
-      cy.get(this.passwordInputSelector)
-        .clear()
-        .type(password, { log: false }); // Hides password from Cypress logs
-    } else {
-      cy.get(this.passwordInputSelector).clear();
+      input.type(password, { log: false });
     }
   }
 
   // ====================
-  // Actions - Click
+  // Actions - Clicking
   // ====================
   clickLoginButton(): void {
     cy.get(this.loginButtonSelector).contains('Log in').click();
+  }
+
+  clickCloseButton(): void {
+    cy.contains(this.closeButtonSelector, 'Close').click({ force: true });
+  }
+
+
+
+
+  // ====================
+  // Modal Assertions
+  // ====================
+  assertLoginModalVisible(): void {
+    cy.get(this.loginModalSelector).should('be.visible');
+  }
+
+  assertLoginModalClosed(): void {
+    cy.get(this.loginModalSelector).should('not.be.visible');
+    cy.url().should('eq', 'https://demoblaze.com/');
   }
 
   // ====================
