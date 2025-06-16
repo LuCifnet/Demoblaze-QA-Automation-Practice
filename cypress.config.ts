@@ -24,6 +24,9 @@ dotenv.config()
 export default defineConfig({
   e2e: {
     baseUrl: process.env.BASE_URL,
+    retries:{
+      runMode: 3
+    },
     env: {
       DEFAULT_USER: process.env.DEFAULT_USER,
       DEFAULT_PASSWORD: process.env.DEFAULT_PASSWORD,

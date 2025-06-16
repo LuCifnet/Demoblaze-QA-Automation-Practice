@@ -34,8 +34,8 @@ describe('Signup Test Suite', () => {
         signupPage.assertAlertMessage('Please fill out Username and Password.');
     })
 
-    it('TC_Signup_005 | Title: Sign-Up with Only Spaces in Username', () => {
-        signupPage.randomCred(); // Generates username with only spaces and random password
+    it.only('TC_Signup_005 | Title: Sign-Up with Only Spaces in Username',() => {          //fail
+        signupPage.randomCred(); 
         const { username, password } = signupPage.getCredentials();
 
         signupPage.fillSignupForm(username, password);
@@ -71,7 +71,7 @@ describe('Signup Test Suite', () => {
         signupPage.assertAlertMessage('This user already exist.');
     })
 
-    it.only('TC_Signup_012 | Refresh Page Midway During Sign-Up', () => {
+    it('TC_Signup_012 | Refresh Page Midway During Sign-Up', () => {
         signupPage.visitHomepage();
 
         signupPage.openSignupModal();
@@ -93,8 +93,4 @@ describe('Signup Test Suite', () => {
 
         signupPage.assertSignupFields('', '');
     });
-
-
-
-
 });
