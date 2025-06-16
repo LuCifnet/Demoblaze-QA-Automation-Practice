@@ -1,4 +1,4 @@
-import homePage from '../pages/Homepage';
+import homePage from '../support/pages/Homepage';
 
 describe('Home Page Tests', () => {
 
@@ -43,7 +43,7 @@ describe('Home Page Tests', () => {
     it('TC010 | Title: Homepage Refresh Preserves State', ()=>{
         homePage.verifyCategoryNotPreservedAfterRefresh();
     })
-    it.only('TC011 | Title: Add Product', () =>{
+    it('TC011 | Title: Add Product', () =>{
         homePage.addProductsInCart('Samsung galaxy s6')
     })
     

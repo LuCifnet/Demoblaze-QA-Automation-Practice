@@ -1,4 +1,4 @@
-import headerSection from '../pages/HeaderSection'
+import headerSection from '../support/pages/HeaderSection'
 
 describe('Header Section Test', () => {
     beforeEach(() => {

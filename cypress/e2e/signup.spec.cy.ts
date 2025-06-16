@@ -1,11 +1,11 @@
-
-import signupPage from '../pages/SignupPage';
+import signupPage from '../support/pages/SignupPage';
 
 describe('Signup Test Suite', () => {
     beforeEach(() => {
-        signupPage.visitHomepage();
+        cy.visitHomepage();
         signupPage.openSignupModal();
         signupPage.stubAlert();
+        signupPage.failOnUnexpectedAlert();
     });
 
     it('TC_Signup_001 | Title: Valid Sign-Up', () => {
@@ -32,65 +32,62 @@ describe('Signup Test Suite', () => {
         signupPage.fillSignupForm('incompleteUser', '');
         signupPage.clickSignupButton();
         signupPage.assertAlertMessage('Please fill out Username and Password.');
-    })
+    });
 
-    it.only('TC_Signup_005 | Title: Sign-Up with Only Spaces in Username',() => {          //fail
-        signupPage.randomCred(); 
+    it('TC_Signup_005 | Title: Sign-Up with Only Spaces in Username', () => {
+        // This may fail if the app incorrectly accepts space-only usernames
+        signupPage.randomCred();
         const { username, password } = signupPage.getCredentials();
-
         signupPage.fillSignupForm(username, password);
         signupPage.clickSignupButton();
-
         signupPage.assertAlertMessage('Sign up successful.');
     });
 
     it('TC_Signup_006 | Title: Sign-Up with Script Injection in Username Field', () => {
-        signupPage.generateXssCred(); // generate unique XSS username
+        signupPage.generateXssCred();
         const { username, password } = signupPage.getCredentials();
-
         signupPage.fillSignupForm(username, password);
         signupPage.clickSignupButton();
         signupPage.assertAlertMessage('Sign up successful.');
-        signupPage.failOnUnexpectedAlert();
     });
 
     it('TC_Signup_007 | Title: Sign-Up with Special Characters in Username', () => {
         signupPage.specialChar();
         const { username, password } = signupPage.getCredentials();
-
         signupPage.fillSignupForm(username, password);
         signupPage.clickSignupButton();
-        signupPage.assertAlertMessage('Sign up successful.')
-    })
+        signupPage.assertAlertMessage('Sign up successful.');
+    });
 
     it('TC_Signup_008 | Title: Sign-Up with Duplicate Username', () => {
         signupPage.fillSignupForm(
-            Cypress.env('DEFAULT_USER')
+            Cypress.env('DEFAULT_USER'),
+            Cypress.env('DEFAULT_PASSWORD')
         );
         signupPage.clickSignupButton();
         signupPage.assertAlertMessage('This user already exist.');
-    })
+    });
 
-    it('TC_Signup_012 | Refresh Page Midway During Sign-Up', () => {
-        signupPage.visitHomepage();
+    it('TC_Signup_009 | Title: Refresh Page Midway During Sign-Up', () => {
 
-        signupPage.openSignupModal();
-
-         signupPage.fillSignupForm(
+        // Fill the signup form with env credentials
+        signupPage.fillSignupForm(
             Cypress.env('DEFAULT_USER'),
             Cypress.env('DEFAULT_PASSWORD')
         );
 
-        signupPage.assertSignupFields( 
+        // Assert the form fields have the entered credentials
+        signupPage.assertSignupFields(
             Cypress.env('DEFAULT_USER'),
             Cypress.env('DEFAULT_PASSWORD')
         );
-
         cy.reload();
-
-  
+        cy.wait(1000);
+        // After reload, open the signup modal again
         signupPage.openSignupModal();
 
+        // Assert that the signup form fields are cleared after reload
         signupPage.assertSignupFields('', '');
     });
+
 });

@@ -14,11 +14,12 @@
     "@types/cypress": "^0.1.6",
     "@types/node": "^22.15.29",
     "cypress": "^14.4.1",
+    "cypress-mochawesome-reporter": "^3.8.2",
+    "cypress-multi-reporters": "^2.0.5",
     "dotenv": "^16.5.0",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "cypress-mochawesome-reporter": "^3.8.2",
     "cypress-real-events": "^1.14.0"
   }
 }
