@@ -1,65 +1,51 @@
-import loginPage from '../pages/LoginPage';
+import loginPage from '../support/pages/LoginPage';
+import { assertHelpers } from '../support/helpers/assertHelpers';
 
 describe('Login Test', () => {
   beforeEach(() => {
-    loginPage.visitHomePage();
+    cy.visitHomepage();
     loginPage.openLoginModal();
   });
 
   it('TC_Login_001, Title: Valid Login', () => {
-    loginPage.typeUsername(Cypress.env('DEFAULT_USER'));
-    loginPage.typePassword(Cypress.env('DEFAULT_PASSWORD'));
-    loginPage.clickLoginButton();
-    loginPage.assertLoginSuccess(Cypress.env('DEFAULT_USER'));
+    loginPage.loginExpectSuccess();
   });
 
   it('TC_Login_002, Title: Invalid Password', () => {
-    loginPage.typeUsername(Cypress.env('DEFAULT_USER'));
-    loginPage.typePassword('wrongpass123');
-    loginPage.stubAlert();
-    loginPage.clickLoginButton();
-    loginPage.assertAlertMessage('Wrong password.');
+    loginPage.loginExpectFailure(
+      Cypress.env('DEFAULT_USER'),
+      'wrongpass123',
+      'Wrong password.'
+    );
   });
 
   it('TC_Login_003, Title: Empty Username and Password Fields', () => {
-    loginPage.typeUsername('');
-    loginPage.typePassword('');
-    loginPage.stubAlert();
-    loginPage.clickLoginButton();
-    loginPage.assertAlertMessage('Please fill out Username and Password.');
+    loginPage.loginExpectFailure('', '', 'Please fill out Username and Password.');
   });
 
   it('TC_Login_004, Title: SQL Injection Attempt in Username', () => {
-    loginPage.typeUsername("' OR 1=1 --");
-    loginPage.typePassword(Cypress.env('DEFAULT_PASSWORD'));
-    loginPage.stubAlert();
-    loginPage.clickLoginButton();
-    loginPage.assertAlertMessage('Wrong password.');
+    loginPage.loginExpectFailure("' OR 1=1 --", Cypress.env('DEFAULT_PASSWORD'), 'Wrong password.');
   });
 
   it('TC_Login_005, Title: Login with Unregistered User', () => {
-    loginPage.typeUsername(Cypress.env('FAKE_USER_USERNAME'));
-    loginPage.typePassword(Cypress.env('FAKE_USER_PASSWORD'));
-    loginPage.stubAlert();
-    loginPage.clickLoginButton();
-    loginPage.assertAlertMessage('User does not exist.');
+    loginPage.loginExpectFailure(
+      Cypress.env('FAKE_USER_USERNAME'),
+      Cypress.env('FAKE_USER_PASSWORD'),
+      'User does not exist.'
+    );
   });
 
   it('TC_Login_006, Title: Username Case Sensitivity Check', () => {
-    loginPage.typeUsername(Cypress.env('DEFAULT_USER').toUpperCase());
-    loginPage.typePassword(Cypress.env('DEFAULT_PASSWORD'));
-    loginPage.stubAlert();
-    loginPage.clickLoginButton();
-    loginPage.assertAlertMessage('User does not exist.');
+    loginPage.loginExpectFailure(
+      Cypress.env('DEFAULT_USER').toUpperCase(),
+      Cypress.env('DEFAULT_PASSWORD'),
+      'User does not exist.'
+    );
   });
 
   it('TC_Login_007, Title: XSS Attempt in Username', () => {
-    loginPage.failOnUnexpectedAlert();
-    loginPage.typeUsername('<script>alert("XSS")</script>');
-    loginPage.typePassword(Cypress.env('DEFAULT_PASSWORD'));
-    loginPage.stubAlert();
-    loginPage.clickLoginButton();
-    loginPage.assertAlertMessage('Wrong password.');
+    assertHelpers.failOnUnexpectedAlert(); // Ensure test fails if XSS alert pops
+    loginPage.loginExpectFailure('<script>alert("XSS")</script>', Cypress.env('DEFAULT_PASSWORD'), 'Wrong password.');
   });
 
   it('TC_Login_008, Title: Close Button should close the modal', () => {

@@ -1,4 +1,4 @@
-import placeOrder from '../pages/PlaceOrder';
+import placeOrder from '../support/pages/PlaceOrder';
 import { faker } from '@faker-js/faker';
 
 describe('Place Order Test Suite', () => {

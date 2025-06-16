@@ -72,36 +72,6 @@ export class HeaderSection {
         cy.get('#signInModal').should('not.be.visible');
     }
 
-    //     verifyContact(): void {
-    //     cy.log('Checking Contact link functionality');
-
-    //     // Click contact link to open modal
-    //     cy.get(this.contactSelector).click();
-
-    //     // Check modal is visible and has 'show' class
-    //     cy.get('#exampleModal').should('have.class', 'show').and('be.visible');
-
-    //     // Assert modal title is visible and contains text "Contact"
-    //     cy.get('#exampleModal').find('.modal-title').should('be.visible').and('contain.text', 'New message');
-
-    //     // Example: Assert input fields are visible (update selectors as needed)
-    //     cy.get('#exampleModal').find('input#recipient-email').should('be.visible');
-    //     cy.get('#exampleModal').find('textarea#message-text').should('be.visible');
-
-    //     // Assert buttons are visible and have correct labels
-    //     cy.get('#exampleModal').find('button').contains('Close').should('be.visible');
-    //     cy.get('#exampleModal').find('button').contains('Send message').should('be.visible');
-
-    //     // Optionally assert placeholders or labels for inputs if needed
-    //     cy.get('#exampleModal').find('label[for="recipient-name"]').should('contain.text', 'Email');
-    //     cy.get('#exampleModal').find('label[for="message-text"]').should('contain.text', 'Message');
-
-    //     // Close the modal forcibly
-    //     cy.wait(300);
-    //     cy.get('#exampleModal').find('button').contains('Close').click({ force: true });
-    //     cy.get('#exampleModal').should('not.be.visible');
-    // }
-
     verifyNavLinkHoverEffects(): void {
         cy.get(this.navLinksSelector)
             .filter(':visible') // only test visible links

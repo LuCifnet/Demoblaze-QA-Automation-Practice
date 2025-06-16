@@ -1,20 +1,3 @@
-// import { defineConfig } from 'cypress'
-// import * as dotenv from 'dotenv'
-
-// // Load .env variables into process.env
-// dotenv.config()
-
-// export default defineConfig({
-//   e2e: {
-//     baseUrl: process.env.BASE_URL,
-//     env: {...process.env},
-//     setupNodeEvents(on, config) {
-//       return config
-//     },
-//   },
-// })
-
-
 import { defineConfig } from 'cypress'
 import * as dotenv from 'dotenv'
 
@@ -22,10 +5,24 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 export default defineConfig({
+  video: true,
+  reporter: 'cypress-mochawesome-reporter', 
+  reporterOptions: {
+    reportDir: 'cypress/reports',
+    overwrite: true,
+    html: true,
+    json: true,
+    charts: false,
+    reportPageTitle: 'DemoBlaze Test Report',
+    embeddedScreenshots: true,
+    inlineAssets: true,
+    saveAllAttempts: false,
+  },
   e2e: {
     baseUrl: process.env.BASE_URL,
-    retries:{
-      runMode: 3
+    retries: {
+      runMode: 1,
+      openMode: 1,
     },
     env: {
       DEFAULT_USER: process.env.DEFAULT_USER,
@@ -36,6 +33,7 @@ export default defineConfig({
       SIGNUP_PASSWORD: process.env.SIGNUP_PASSWORD,
     },
     setupNodeEvents(on, config) {
+      require('cypress-mochawesome-reporter/plugin')(on) 
       return config
     },
   },
