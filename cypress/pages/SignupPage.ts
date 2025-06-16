@@ -11,7 +11,7 @@ export class SignupPage {
     private readonly welcomeUserSelector = '#nameofuser';
 
     // ========================
-    // Stored Credentials
+    // State: Stored Credentials
     // ========================
     private generatedCred: { username: string; password: string } = {
         username: '',
@@ -19,7 +19,7 @@ export class SignupPage {
     };
 
     // ========================
-    // Credential Generation
+    // Credential Generators
     // ========================
 
     /**
@@ -40,14 +40,69 @@ export class SignupPage {
         this.generatedCred.password = (basePassword + '_').padEnd(254, 'w');
     }
 
+    /**
+     * Generate credentials with special characters in the username
+     */
+    specialChar(): void {
+        const specialChars = "!@#$%^&*()_+-=[]{}|;':,.<>/?";
+        const baseUsername = faker.internet.userName();
+        const specialUsername = `${baseUsername}_${specialChars}`;
+        const password = faker.internet.password({ length: 12 });
+
+        this.generatedCred.username = specialUsername;
+        this.generatedCred.password = password;
+    }
+
+    /**
+     * Generate credentials with random spaces for input edge case testing
+     */
+    randomCred(): void {
+        const randomSpaces = ' '.repeat(70 + Math.floor(Math.random() * 20));
+        const randomPassword = faker.internet.password({ length: 8, memorable: true });
+
+        this.generatedCred.username = randomSpaces;
+        this.generatedCred.password = randomPassword;
+    }
+
+    /**
+     * Generate XSS payload as username for security testing
+     */
+    generateXssCred(): void {
+        const timestamp = Date.now();
+        const xssPayload = `<script>alert('XSS_${timestamp}')</script>`;
+        const randomPassword = faker.internet.password({ length: 12 });
+
+        this.generatedCred.username = xssPayload;
+        this.generatedCred.password = randomPassword;
+    }
+
     // ========================
-    // Form Filling
+    // Navigation & Modal
+    // ========================
+
+    /**
+     * Visit the homepage
+     */
+    visitHomepage(): void {
+        cy.visit('/');
+    }
+
+    /**
+     * Open the signup modal and wait for username input to be visible
+     */
+    openSignupModal(): void {
+        cy.get(this.signupModalOpenButtonSelector).click();
+        cy.get(this.usernameInputSelector).should('be.visible');
+    }
+
+    // ========================
+    // Form Interaction
     // ========================
 
     /**
      * Fill the signup form fields.
      * If username or password is undefined, generate fake credentials.
-     * If empty strings are passed, clear inputs without typing.
+     * If empty strings are passed, clears inputs without typing.
      */
     fillSignupForm(username?: string, password?: string): void {
         if (username === undefined || password === undefined) {
@@ -71,87 +126,11 @@ export class SignupPage {
         }
     }
 
-    randomCred(): void {
-        const randomSpaces = ' '.repeat(70 + Math.floor(Math.random() * 20));
-        const randomPassword = faker.internet.password({ length: 8, memorable: true });
-
-        this.generatedCred.username = randomSpaces;
-        this.generatedCred.password = randomPassword;
-    }
-
-    generateXssCred(): void {
-        const timestamp = Date.now();
-        const xssPayload = `<script>alert('XSS_${timestamp}')</script>`;
-        const randomPassword = faker.internet.password({ length: 12 });
-
-        this.generatedCred.username = xssPayload;
-        this.generatedCred.password = randomPassword;
-    }
-
-    /**
-     * Generate credentials with special characters in the username
-     */
-    specialChar(): void {
-        // Example special characters
-        const specialChars = "!@#$%^&*()_+-=[]{}|;':,.<>/?";
-        const baseUsername = faker.internet.userName();
-        // Insert special characters into the username
-        const specialUsername = `${baseUsername}_${specialChars}`;
-        const password = faker.internet.password({ length: 12 });
-
-        this.generatedCred.username = specialUsername;
-        this.generatedCred.password = password;
-    }
-
-    // ========================
-    // Navigation
-    // ========================
-
-    /**
-     * Visit the homepage
-     */
-    visitHomepage(): void {
-        cy.visit('/');
-    }
-
-    /**
-     * Open the signup modal and wait for username input to be visible
-     */
-    openSignupModal(): void {
-        cy.get(this.signupModalOpenButtonSelector).click();
-        cy.get(this.usernameInputSelector).should('be.visible');
-    }
-
-    // ========================
-    // Click Actions
-    // ========================
-
     /**
      * Click on the "Sign up" button
      */
     clickSignupButton(): void {
         cy.contains(this.signupButtonSelector, 'Sign up').click();
-    }
-
-    // ========================
-    // Alert Handling
-    // ========================
-
-    /**
-     * Stub the window alert to spy on alert messages
-     */
-    stubAlert(): void {
-        cy.window().then((win) => {
-            cy.stub(win, 'alert').as('alert');
-        });
-    }
-
-    /**
-     * Assert alert message is as expected
-     * @param expectedMessage expected alert message text
-     */
-    assertAlertMessage(expectedMessage: string): void {
-        cy.get('@alert').should('have.been.calledWith', expectedMessage);
     }
 
     // ========================
@@ -171,15 +150,41 @@ export class SignupPage {
     }
 
     /**
- * Assert the current value of the signup form fields
- * @param expectedUsername Expected username input value
- * @param expectedPassword Expected password input value
- */
+     * Assert that form fields have expected input values
+     */
     assertSignupFields(expectedUsername: string, expectedPassword: string): void {
         cy.get(this.usernameInputSelector).should('have.value', expectedUsername);
         cy.get(this.passwordInputSelector).should('have.value', expectedPassword);
     }
 
+    // ========================
+    // Alert Handling
+    // ========================
+
+    /**
+     * Stub the window alert to spy on alert messages
+     */
+    stubAlert(): void {
+        cy.window().then((win) => {
+            cy.stub(win, 'alert').as('alert');
+        });
+    }
+
+    /**
+     * Assert alert message is as expected
+     */
+    assertAlertMessage(expectedMessage: string): void {
+        cy.get('@alert').should('have.been.calledWith', expectedMessage);
+    }
+
+    /**
+     * Fail test immediately on unexpected alert
+     */
+    failOnUnexpectedAlert(): void {
+        cy.on('window:alert', (message) => {
+            throw new Error(`Unexpected alert detected: ${message}`);
+        });
+    }
 
     // ========================
     // Utilities
@@ -191,13 +196,6 @@ export class SignupPage {
     getCredentials(): { username: string; password: string } {
         return this.generatedCred;
     }
-
-    failOnUnexpectedAlert(): void {
-        cy.on('window:alert', (message) => {
-            throw new Error(`Unexpected alert detected: ${message}`);
-        });
-    }
-
 }
 
 export default new SignupPage();
